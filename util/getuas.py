@@ -21,17 +21,16 @@ soup = BeautifulSoup(html_doc)
 
 liste = soup.find(id='liste')
 
-try:
-
-    uas = liste.find_all('li')
-
-    if len(uas) <= 0:
-        print("No UAs Found. Are you on http://www.useragentstring.com/ lists?")
-        sys.exit(1)
-
-    for ua in uas:
-        ua_string = ua.get_text()
-        ua_string = ua_string.strip(' \t\n\r')
-        print(ua_string)
-except (AttributeError, NameError):
+if liste is None:
     print("No UAs Found. Are you on http://www.useragentstring.com/ lists?")
+    sys.exit(1)
+uas = liste.find_all('li')  # type: ignore
+
+if len(uas) <= 0:
+    print("No UAs Found. Are you on http://www.useragentstring.com/ lists?")
+    sys.exit(1)
+
+for ua in uas:
+    ua_string = ua.get_text()
+    ua_string = ua_string.strip(' \t\n\r')
+    print(ua_string)

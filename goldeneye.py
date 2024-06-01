@@ -292,7 +292,7 @@ class Striker(Process):
 
         validChars = _LOWERCASE + _UPPERCASE + _NUMERIC
 
-        for i in range(0, size):
+        for _ in range(0, size):
             a = random.choice(validChars)
             out_str += chr(a)
 
