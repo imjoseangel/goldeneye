@@ -1,5 +1,3 @@
-# THIS PROJECT IS NO LONGER MAINTAINED
-
 # GoldenEye
 
 GoldenEye is a Python 3 app for SECURITY TESTING PURPOSES ONLY!
@@ -24,10 +22,12 @@ Attack Vector exploited: HTTP Keep Alive + NoCache
 
 
 ## Utilities
+
 * util/getuas.py - Fetches user-agent lists from http://www.useragentstring.com/pages/useragentstring.php subpages (ex: ./getuas.py "http://www.useragentstring.com/pages/useragentstring.php?name=All") *REQUIRES BEAUTIFULSOUP4*
 * res/lists/useragents - Text lists (one per line) of User-Agent strings (from http://www.useragentstring.com)
 
 ## Changelog
+
 * 2016-02-06  Added support for not verifying SSL Certificates
 * 2014-02-20  Added randomly created user agents (still RFC compliant).
 * 2014-02-19  Removed silly referers and user agents. Improved randomness of referers. Added external user-agent list support.
@@ -35,11 +35,14 @@ Attack Vector exploited: HTTP Keep Alive + NoCache
 * 2012-12-09  Initial release
 
 ## To-do
+
 * Change from getopt to argparse
 * Change from string.format() to printf-like
 
 ## License
+
 This software is distributed under the GNU General Public License version 3 (GPLv3)
 
 ## LEGAL NOTICE
+
 THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL USE ONLY! IF YOU ENGAGE IN ANY ILLEGAL ACTIVITY THE AUTHOR DOES NOT TAKE ANY RESPONSIBILITY FOR IT. BY USING THIS SOFTWARE YOU AGREE WITH THESE TERMS.
