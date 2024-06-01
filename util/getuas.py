@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import urllib.request, urllib.parse, urllib.error, sys
+import urllib.request
+import urllib.parse
+import urllib.error
+import sys
 from bs4 import BeautifulSoup
 
 if len(sys.argv) <= 1:
